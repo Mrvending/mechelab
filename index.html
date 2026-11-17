@@ -1,22 +1,5 @@
 <!doctype html>
-<!--
-  MECHELAB: SINGLE-FILE WEBSITE
-  ------------------------------------------------------------
-  Everything lives in this one file:
-    1. <head>   : page title, search description, libraries (Tailwind + fonts), custom CSS
-    2. <body>   : the 3D background canvas, the floating menu, then four "views":
-                  home, enquire, legal
-    3. <script> : (a) your editable CONTENT, (b) the code that draws it,
-                  (c) page switching, (d) forms, (e) the three.js 3D scene
-
-  HOW PAGES WORK: this is one HTML file. Links such as #enquire and #legal switch which
-  "view" is visible; data-scroll links move to sections within the home view.
-
-  TO EDIT TEXT: look for the section marked "CONTENT" in the script at the bottom,
-  or search for a sentence in this file and change it.
--->
-<html lang="en">
-<head>
+<html lang="en"><head>
 <meta charset="utf-8">
 <!-- viewport-fit=cover lets the page sit properly on phones with notches -->
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -27,8 +10,8 @@
 <!-- LIBRARIES: Tailwind (layout utilities) and Google Fonts (Unbounded for headlines, Manrope for body) -->
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=Unbounded:wght@300;500&display=swap">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&amp;family=Unbounded:wght@300;500&amp;display=swap">
 <script>
   // Tell Tailwind about our two font families so classes like font-disp work
   tailwind.config = { theme: { extend: { fontFamily: { disp: ['Unbounded','Manrope','sans-serif'], body: ['Manrope','system-ui','sans-serif'] } } } };
@@ -161,11 +144,11 @@ body.ml-preview-mode #mlAdminPanel{display:none!important}
 @media(max-width:560px){#mlAdminPanel{right:10px;bottom:10px;width:calc(100vw - 20px)}}
 
 </style>
-</head>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.order-1{order:1}.order-2{order:2}.order-3{order:3}.m-0{margin:0px}.mx-auto{margin-left:auto;margin-right:auto}.my-3{margin-top:0.75rem;margin-bottom:0.75rem}.mb-10{margin-bottom:2.5rem}.mb-12{margin-bottom:3rem}.mb-3{margin-bottom:0.75rem}.mb-4{margin-bottom:1rem}.mb-5{margin-bottom:1.25rem}.mb-6{margin-bottom:1.5rem}.mb-7{margin-bottom:1.75rem}.mb-8{margin-bottom:2rem}.mt-16{margin-top:4rem}.mt-4{margin-top:1rem}.mt-6{margin-top:1.5rem}.mt-7{margin-top:1.75rem}.block{display:block}.flex{display:flex}.grid{display:grid}.hidden{display:none}.min-h-\[100svh\]{min-height:100svh}.w-full{width:100%}.min-w-\[300px\]{min-width:300px}.min-w-\[200px\]{min-width:200px}.max-w-\[1000px\]{max-width:1000px}.max-w-\[1280px\]{max-width:1280px}.max-w-\[14ch\]{max-width:14ch}.max-w-\[24ch\]{max-width:24ch}.max-w-\[34rem\]{max-width:34rem}.max-w-\[40rem\]{max-width:40rem}.max-w-\[480px\]{max-width:480px}.max-w-\[520px\]{max-width:520px}.max-w-\[600px\]{max-width:600px}.max-w-\[860px\]{max-width:860px}.flex-1{flex:1 1 0%}.list-none{list-style-type:none}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-center{align-items:center}.justify-end{justify-content:flex-end}.justify-between{justify-content:space-between}.gap-10{gap:2.5rem}.gap-14{gap:3.5rem}.gap-16{gap:4rem}.gap-2{gap:0.5rem}.gap-4{gap:1rem}.gap-5{gap:1.25rem}.gap-6{gap:1.5rem}.gap-7{gap:1.75rem}.overflow-hidden{overflow:hidden}.rounded-\[32px\]{border-radius:32px}.bg-\[rgba\(2\2c 9\2c 18\2c \.45\)\]{background-color:rgba(2,9,18,.45)}.p-0{padding:0px}.p-8{padding:2rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.px-8{padding-left:2rem;padding-right:2rem}.py-10{padding-top:2.5rem;padding-bottom:2.5rem}.py-20{padding-top:5rem;padding-bottom:5rem}.py-6{padding-top:1.5rem;padding-bottom:1.5rem}.pb-10{padding-bottom:2.5rem}.pb-20{padding-bottom:5rem}.pb-24{padding-bottom:6rem}.pt-24{padding-top:6rem}.pt-28{padding-top:7rem}.pt-32{padding-top:8rem}.pt-40{padding-top:10rem}.pt-6{padding-top:1.5rem}.pt-9{padding-top:2.25rem}.text-center{text-align:center}.font-disp{font-family:Unbounded, Manrope, sans-serif}.text-2xl{font-size:1.5rem;line-height:2rem}.text-\[15px\]{font-size:15px}.text-\[clamp\(1\.4rem\2c 2\.4vw\2c 2rem\)\]{font-size:clamp(1.4rem,2.4vw,2rem)}.text-\[clamp\(1\.8rem\2c 3\.4vw\2c 2\.8rem\)\]{font-size:clamp(1.8rem,3.4vw,2.8rem)}.text-\[clamp\(1\.8rem\2c 3\.8vw\2c 3\.1rem\)\]{font-size:clamp(1.8rem,3.8vw,3.1rem)}.text-\[clamp\(1\.8rem\2c 4vw\2c 3rem\)\]{font-size:clamp(1.8rem,4vw,3rem)}.text-\[clamp\(2\.3rem\2c 5\.4vw\2c 4\.6rem\)\]{font-size:clamp(2.3rem,5.4vw,4.6rem)}.text-\[clamp\(2rem\2c 4\.4vw\2c 3\.4rem\)\]{font-size:clamp(2rem,4.4vw,3.4rem)}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.leading-9{line-height:2.25rem}.leading-\[1\.06\]{line-height:1.06}.leading-\[1\.15\]{line-height:1.15}.leading-\[1\.1\]{line-height:1.1}.leading-snug{line-height:1.375}.leading-tight{line-height:1.25}.tracking-wide{letter-spacing:0.025em}.text-\[var\(--cyan\)\]{color:var(--cyan)}.text-\[var\(--muted\)\]{color:var(--muted)}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.no-underline{-webkit-text-decoration-line:none;text-decoration-line:none}.hover\:text-white:hover{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}@media (min-width: 768px){.md\:flex{display:flex}.md\:hidden{display:none}.md\:max-w-\[16ch\]{max-width:16ch}.md\:max-w-\[30ch\]{max-width:30ch}.md\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.md\:p-10{padding:2.5rem}.md\:px-16{padding-left:4rem;padding-right:4rem}.md\:text-xl{font-size:1.25rem;line-height:1.75rem}}</style></head>
 
-<body>
+<body class="" data-cms-exported="true">
 <!-- 3D BACKGROUND: drawn by three.js (see the script at the bottom) -->
-<canvas id="bg" aria-hidden="true"></canvas>
+<canvas id="bg" aria-hidden="true" width="1912" height="948"></canvas>
 <div class="veil"></div>
 
 <!-- ============ NAVIGATION ============
@@ -177,8 +160,8 @@ body.ml-preview-mode #mlAdminPanel{display:none!important}
     <a href="#home" data-scroll="about" class="text-[var(--muted)] no-underline hover:text-white">About</a>
     <!-- SERVICES DROPDOWN: click to open; the three links inside are the old nav items -->
     <div id="svcWrap">
-      <button id="svcBtn" type="button" aria-expanded="false" aria-haspopup="true" aria-controls="svcMenu">Services <svg viewBox="0 0 12 8" width="12" height="8" aria-hidden="true"><path d="M1 1.5l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
-      <div id="svcMenu" hidden>
+      <button id="svcBtn" type="button" aria-expanded="false" aria-haspopup="true" aria-controls="svcMenu">Services <svg viewBox="0 0 12 8" width="12" height="8" aria-hidden="true"><path d="M1 1.5l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg></button>
+      <div id="svcMenu" hidden="">
         <a href="#home" data-scroll="web-design">Web design<small>Websites that perform</small></a>
         <a href="#home" data-scroll="consulting">Consulting<small>Business and technical advice</small></a>
         <a href="#home" data-scroll="digital-products">Digital products<small>Coming soon</small></a>
@@ -192,7 +175,7 @@ body.ml-preview-mode #mlAdminPanel{display:none!important}
     <button id="menuBtn" class="btn2" style="padding:10px 16px" aria-expanded="false" aria-controls="menu">Menu</button>
   </div>
 </header>
-<div id="menu" hidden>
+<div id="menu" hidden="">
   <a href="#home">Home</a>
   <a href="#home" data-scroll="about">About</a>
   <p class="note" style="margin:10px 8px 0">Services</p>
@@ -212,7 +195,7 @@ body.ml-preview-mode #mlAdminPanel{display:none!important}
   <section class="min-h-[100svh] flex items-center px-6 md:px-16 pt-32 pb-20">
     <div class="max-w-[1280px] mx-auto w-full">
       <p class="note mb-5">Strategy · Design · Growth</p>
-      <h1 class="disp text-[clamp(2.3rem,5.4vw,4.6rem)] leading-[1.06] max-w-[14ch] md:max-w-[16ch]">Strategy that sharpens.<br><span class="g">Design that performs.</span></h1>
+      <h1 class="disp text-[clamp(2.3rem,5.4vw,4.6rem)] leading-[1.06] max-w-[14ch] md:max-w-[16ch]">Client focused.<br><span class="g">Design that performs.</span></h1>
       <p class="sub text-lg md:text-xl max-w-[34rem] mt-7 mb-10">A consulting and design partner for businesses ready to lead their category, from the first idea to the final pixel.</p>
       <div class="flex flex-wrap gap-4">
         <a class="btn" href="#enquire">Send an enquiry</a>
@@ -225,7 +208,7 @@ body.ml-preview-mode #mlAdminPanel{display:none!important}
 
   <!-- RIBBON: keywords scroll endlessly (the list is doubled so the loop is seamless) -->
   <div class="overflow-hidden py-6 font-disp text-xl text-[var(--muted)] bg-[rgba(2,9,18,.45)]" aria-hidden="true">
-    <div class="mq" id="ribbon"></div>
+    <div class="mq" id="ribbon"><span>Web design</span><span style="color:var(--mint)" aria-hidden="true">◆</span><span>Business advice</span><span style="color:var(--mint)" aria-hidden="true">◆</span><span>Technical advice</span><span style="color:var(--mint)" aria-hidden="true">◆</span><span>Growth planning</span><span style="color:var(--mint)" aria-hidden="true">◆</span><span>Search and AI</span><span style="color:var(--mint)" aria-hidden="true">◆</span><span>Recommendations</span><span style="color:var(--mint)" aria-hidden="true">◆</span><span>Digital products</span><span style="color:var(--mint)" aria-hidden="true">◆</span><span>Web design</span><span style="color:var(--mint)" aria-hidden="true">◆</span><span>Business advice</span><span style="color:var(--mint)" aria-hidden="true">◆</span><span>Technical advice</span><span style="color:var(--mint)" aria-hidden="true">◆</span><span>Growth planning</span><span style="color:var(--mint)" aria-hidden="true">◆</span><span>Search and AI</span><span style="color:var(--mint)" aria-hidden="true">◆</span><span>Recommendations</span><span style="color:var(--mint)" aria-hidden="true">◆</span><span>Digital products</span><span style="color:var(--mint)" aria-hidden="true">◆</span></div>
   </div>
 
   <!-- ABOUT: first section after the ribbon. A plain-language summary for visitors who want consulting or web design. -->
@@ -259,7 +242,7 @@ body.ml-preview-mode #mlAdminPanel{display:none!important}
           <div class="sl" style="left:80px;top:250px;width:320px;height:200px;animation-delay:-5s;z-index:3"><p class="lab">Priorities map (sample)</p><div style="position:relative;height:130px;border-radius:12px;background:rgba(0,8,24,.3)"><i class="dotp" style="position:absolute;left:24%;top:60%;width:10px;height:10px"></i><i class="dotp" style="position:absolute;left:62%;top:28%;width:10px;height:10px;animation-delay:-1s"></i><i class="dotp" style="position:absolute;left:78%;top:68%;width:10px;height:10px;animation-delay:-2s"></i><i style="position:absolute;left:44%;top:40%;width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#5ee0f0,#7b6cff);box-shadow:0 0 24px #5ee0f0"></i></div></div>
         </div>
       </div>
-      <div id="consultingRows" class="mt-16"></div>
+      <div id="consultingRows" class="mt-16"><details class="svc" open=""><summary><span class="disp g" style="font-size:15px;width:34px">01</span><span class="t">Review of your existing state</span><span class="pl" aria-hidden="true">+</span></summary><div class="body"><p class="sub m-0">We start by understanding where your business and systems stand today: your market position, website and online presence, tools and processes, and where time or revenue is being lost.</p><span class="chip">Business review</span><span class="chip">Systems and tools</span><span class="chip">Online presence</span></div></details><details class="svc" open=""><summary><span class="disp g" style="font-size:15px;width:34px">02</span><span class="t">Growth planning and what it means for you</span><span class="pl" aria-hidden="true">+</span></summary><div class="body"><p class="sub m-0">We map where you want to grow and work through what that means for the business and its systems: the people, processes, technology and costs involved, so you can plan with confidence.</p><span class="chip">Growth roadmap</span><span class="chip">Business implications</span><span class="chip">Systems and technology</span></div></details><details class="svc" open=""><summary><span class="disp g" style="font-size:15px;width:34px">03</span><span class="t">Outcomes, reports and recommendations</span><span class="pl" aria-hidden="true">+</span></summary><div class="body"><p class="sub m-0">You receive clear, written findings and practical recommendations that suit your business, size and budget, with priorities, next steps and a plan your team can act on.</p><span class="chip">Written report</span><span class="chip">Recommendations</span><span class="chip">Action plan</span></div></details></div>
     </div>
   </section>
 
@@ -277,7 +260,7 @@ body.ml-preview-mode #mlAdminPanel{display:none!important}
           <div class="sl" style="left:260px;top:0;width:300px;height:190px"><p class="lab">Design system (sample)</p><div style="display:flex;gap:8px"><i style="width:40px;height:40px;border-radius:10px;background:#19d3da"></i><i style="width:40px;height:40px;border-radius:10px;background:#2f7bff"></i><i style="width:40px;height:40px;border-radius:10px;background:#7b6cff"></i><i style="width:40px;height:40px;border-radius:10px;background:#6df5c4"></i></div><p class="disp" style="font-size:38px;margin:14px 0 0">Aa</p><div class="sk" style="width:70%"></div></div>
         </div>
       </div>
-      <div id="webRows" class="mt-16"></div>
+      <div id="webRows" class="mt-16"><details class="svc" open=""><summary><span class="disp g" style="font-size:15px;width:34px">01</span><span class="t">Fast, secure and searchable websites</span><span class="pl" aria-hidden="true">+</span></summary><div class="body"><p class="sub m-0">Bespoke websites built for speed, security and search from day one. They load quickly on any device, run on secure hosting with HTTPS, and are structured so Google and AI assistants can find, understand and recommend you.</p><span class="chip">Fast loading</span><span class="chip">Secure by default</span><span class="chip">Search and AI ready</span></div></details><details class="svc"><summary><span class="disp g" style="font-size:15px;width:34px">02</span><span class="t">Improving or building on your existing online presence</span><span class="pl" aria-hidden="true">+</span></summary><div class="body"><p class="sub m-0">We review your current website, domain, social profiles and listings, then keep what works, fix what doesn’t and redirect what moves, so you hold on to the traffic and trust you’ve already earned.</p><span class="chip">Site and profile review</span><span class="chip">Migration and redirects</span><span class="chip">Consistent branding</span></div></details><details class="svc"><summary><span class="disp g" style="font-size:15px;width:34px">03</span><span class="t">Flexible add-ons and support</span><span class="pl" aria-hidden="true">+</span></summary><div class="body"><p class="sub m-0">Add the extras you need, such as interactive design, booking, an online shop or a blog. Then choose how to run it: manage it yourself with training and simple editing tools, or let us look after updates, security and improvements on an ongoing plan.</p><span class="chip">Contemporary add-ons</span><span class="chip">Self-managed</span><span class="chip">Ongoing support</span></div></details></div>
     </div>
   </section>
 
@@ -295,7 +278,7 @@ body.ml-preview-mode #mlAdminPanel{display:none!important}
           <div class="sl" style="left:110px;top:250px;width:340px;height:200px;animation-delay:-5s;z-index:3"><p class="lab">Review worksheet (sample)</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div style="height:56px;border-radius:12px;background:rgba(0,8,24,.3)"></div><div style="height:56px;border-radius:12px;background:linear-gradient(135deg,#19d3da,#3a1fb8)"></div><div style="height:56px;border-radius:12px;background:linear-gradient(135deg,#2f7bff,#7b6cff)"></div><div style="height:56px;border-radius:12px;background:rgba(0,8,24,.3)"></div></div><div class="sk" style="width:70%"></div></div>
         </div>
       </div>
-      <div id="digitalRows" class="mt-16"></div>
+      <div id="digitalRows" class="mt-16"><details class="svc" open=""><summary><span class="disp g" style="font-size:15px;width:34px">01</span><span class="t">Business review toolkit</span><span class="pl" aria-hidden="true">+</span></summary><div class="body"><p class="sub m-0">Worksheets and checklists to review where your business, website and systems stand today, at your own pace.</p><span class="chip">In development</span><span class="chip">Checklists</span><span class="chip">Worksheets</span></div></details><details class="svc"><summary><span class="disp g" style="font-size:15px;width:34px">02</span><span class="t">Website launch kit</span><span class="pl" aria-hidden="true">+</span></summary><div class="body"><p class="sub m-0">Checklists and templates to plan, build and launch a fast, searchable website with confidence.</p><span class="chip">In development</span><span class="chip">Search and AI ready</span><span class="chip">Templates</span></div></details><details class="svc"><summary><span class="disp g" style="font-size:15px;width:34px">03</span><span class="t">Growth planning templates</span><span class="pl" aria-hidden="true">+</span></summary><div class="body"><p class="sub m-0">Editable templates for turning your goals into a clear plan, a simple report and a list of next steps.</p><span class="chip">In development</span><span class="chip">Growth plan</span><span class="chip">Action list</span></div></details></div>
     </div>
   </section>
   </div>
@@ -306,7 +289,7 @@ body.ml-preview-mode #mlAdminPanel{display:none!important}
       <h2 class="disp text-[clamp(1.8rem,3.4vw,2.8rem)] leading-tight mb-12">Built around your results</h2>
       <div class="bento">
         <div class="glass ba"><h3 class="disp text-[clamp(1.4rem,2.4vw,2rem)] leading-snug mb-4">Focused on results, not just deliverables.</h3><p class="sub m-0">Every recommendation and design decision is tied to a goal you care about: more visitors, more enquiries and less guesswork.</p>
-          <svg viewBox="0 0 400 80" width="100%" height="80" aria-hidden="true" style="margin-top:24px"><path class="draw" d="M0,70 C50,60 80,66 120,44 S190,50 230,30 S320,36 360,12 L400,6" fill="none" stroke="#5ee0f0" stroke-width="3" stroke-linecap="round"/></svg></div>
+          <svg viewBox="0 0 400 80" width="100%" height="80" aria-hidden="true" style="margin-top:24px"><path class="draw" d="M0,70 C50,60 80,66 120,44 S190,50 230,30 S320,36 360,12 L400,6" fill="none" stroke="#5ee0f0" stroke-width="3" stroke-linecap="round"></path></svg></div>
         <div class="glass bb" style="align-items:flex-start"><h3 class="disp g text-2xl mb-4">Built to be found</h3><ul class="sub m-0 p-0 list-none leading-9"><li><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--mint);margin-right:12px"></i>Fast on every device</li><li><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--mint);margin-right:12px"></i>Secure by default</li><li><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--mint);margin-right:12px"></i>Ready for search</li><li><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--mint);margin-right:12px"></i>Readable by AI assistants</li></ul></div>
         <div class="glass bc"><h3 class="disp g text-2xl mb-3">Measured results</h3><p class="sub m-0">We track the numbers that matter and report back in plain language.</p></div>
         <div class="glass bd"><h3 class="disp g text-2xl mb-3">Fixed scope</h3><p class="sub m-0">Clear deliverables and pricing, agreed upfront.</p></div>
@@ -323,7 +306,7 @@ body.ml-preview-mode #mlAdminPanel{display:none!important}
     <div class="max-w-[1280px] mx-auto">
       <h2 class="disp text-[clamp(1.8rem,3.4vw,2.8rem)] leading-tight mb-10">A clear path from idea to impact.</h2>
       <div class="dots"></div>
-      <div id="process" class="flex flex-wrap gap-10 pt-9"></div>
+      <div id="process" class="flex flex-wrap gap-10 pt-9"><div class="flex-1 min-w-[200px]"><p class="disp g text-[15px] m-0">01</p><h3 class="disp text-xl my-3">Discover</h3><p class="sub m-0">We listen first, then review where your business and systems stand today.</p></div><div class="flex-1 min-w-[200px]"><p class="disp g text-[15px] m-0">02</p><h3 class="disp text-xl my-3">Define</h3><p class="sub m-0">A clear growth plan and recommendations, agreed before anything is built.</p></div><div class="flex-1 min-w-[200px]"><p class="disp g text-[15px] m-0">03</p><h3 class="disp text-xl my-3">Design</h3><p class="sub m-0">Considered visuals and experiences that make the idea felt.</p></div><div class="flex-1 min-w-[200px]"><p class="disp g text-[15px] m-0">04</p><h3 class="disp text-xl my-3">Launch</h3><p class="sub m-0">We go live with confidence, then keep refining.</p></div></div>
     </div>
   </section>
 
@@ -331,7 +314,7 @@ body.ml-preview-mode #mlAdminPanel{display:none!important}
   <section class="px-6 md:px-16 pt-24 pb-10">
     <div class="max-w-[1000px] mx-auto">
       <h2 class="disp text-[clamp(1.8rem,3.4vw,2.8rem)] leading-tight mb-10">Questions, answered.</h2>
-      <div id="faq"></div>
+      <div id="faq"><details class="svc" open=""><summary><span class="t">What kind of businesses do you work with?</span><span class="pl" aria-hidden="true">+</span></summary><div class="body"><p class="sub m-0">Growing businesses and leadership teams who want clear business and technical advice that leads to clear outcomes. If you are launching, expanding or rethinking your systems, we are likely a good fit.</p></div></details><details class="svc"><summary><span class="t">How does an engagement begin?</span><span class="pl" aria-hidden="true">+</span></summary><div class="body"><p class="sub m-0">You send an enquiry, we reply promptly and a short call helps us understand your goals. If it feels right, a clear proposal follows.</p></div></details><details class="svc"><summary><span class="t">How long does a project take?</span><span class="pl" aria-hidden="true">+</span></summary><div class="body"><p class="sub m-0">It depends on the scope and complexity of the work. We agree a clear timeline with you before we start, so you always know what happens next.</p></div></details><details class="svc"><summary><span class="t">How do you price your work?</span><span class="pl" aria-hidden="true">+</span></summary><div class="body"><p class="sub m-0">Scope and price are agreed upfront, so there are no surprises. Send an enquiry for a tailored quote.</p></div></details><details class="svc"><summary><span class="t">What do you build websites with?</span><span class="pl" aria-hidden="true">+</span></summary><div class="body"><p class="sub m-0">We choose the platform that best fits your goals and how you plan to update the site, whether that’s a managed website builder or a custom build.</p></div></details><details class="svc"><summary><span class="t">Do you offer support after launch?</span><span class="pl" aria-hidden="true">+</span></summary><div class="body"><p class="sub m-0">Yes, depending on what we agree together. Some clients prefer to manage their site themselves with training from us, while others like ongoing support, and we’re happy to shape a plan that suits you.</p></div></details></div>
     </div>
   </section>
 
@@ -349,7 +332,7 @@ body.ml-preview-mode #mlAdminPanel{display:none!important}
 <!-- ============================================================
      VIEW 3: PRIVACY AND TERMS (separate page)
      ============================================================ -->
-<div class="view" data-view="legal" hidden>
+<div class="view" data-view="legal" hidden="">
   <section class="px-6 md:px-16 pt-40 pb-24">
     <div class="max-w-[860px] mx-auto">
       <h1 class="disp text-[clamp(2rem,4.4vw,3.4rem)] leading-[1.1] mb-12">Privacy <span class="g">&amp; terms.</span></h1>
@@ -374,7 +357,7 @@ body.ml-preview-mode #mlAdminPanel{display:none!important}
 <!-- ============================================================
      VIEW 4: ENQUIRE
      ============================================================ -->
-<div class="view" data-view="enquire" hidden>
+<div class="view" data-view="enquire" hidden="">
   <section class="px-6 md:px-16 pt-40 pb-24">
     <div class="max-w-[1280px] mx-auto flex flex-wrap gap-16">
       <div class="flex-1 min-w-[300px] max-w-[480px]">
@@ -384,11 +367,11 @@ body.ml-preview-mode #mlAdminPanel{display:none!important}
         <p class="sub mt-6"><span class="dotp"></span> &nbsp;We read and reply to every enquiry</p>
       </div>
       <div class="glass flex-1 min-w-[300px] max-w-[600px] p-8 md:p-10">
-        <form id="enqForm" novalidate>
-          <label class="block mb-5 text-[15px]">Name<input class="field" type="text" name="name" required autocomplete="name"></label>
-          <label class="block mb-5 text-[15px]">Email<input class="field" type="email" name="email" required autocomplete="email"></label>
+        <form id="enqForm" novalidate="">
+          <label class="block mb-5 text-[15px]">Name<input class="field" type="text" name="name" required="" autocomplete="name"></label>
+          <label class="block mb-5 text-[15px]">Email<input class="field" type="email" name="email" required="" autocomplete="email"></label>
           <label class="block mb-5 text-[15px]">I’m interested in<select class="field" name="interest"><option>Consulting</option><option>Web design</option><option>Both</option><option>Digital products</option><option>Not sure yet</option></select></label>
-          <label class="block mb-7 text-[15px]">Message<textarea class="field" name="message" rows="5" required style="resize:vertical"></textarea></label>
+          <label class="block mb-7 text-[15px]">Message<textarea class="field" name="message" rows="5" required="" style="resize:vertical"></textarea></label>
           <button class="btn" type="submit">Send enquiry</button>
           <p id="enqMsg" class="note mt-4" role="status" aria-live="polite"></p>
         </form>
@@ -412,13 +395,13 @@ body.ml-preview-mode #mlAdminPanel{display:none!important}
      LOCAL CMS: hidden until you click the small Admin link.
      This editor runs only in this browser; it does not need a server.
      ============================================================ -->
-<div id="mlLoginModal" hidden role="dialog" aria-modal="true" aria-labelledby="mlLoginTitle">
+<div id="mlLoginModal" role="dialog" aria-modal="true" aria-labelledby="mlLoginTitle" hidden="">
   <div class="ml-admin-card">
     <h2 id="mlLoginTitle">MecheLab admin</h2>
     <p>Enter your local admin password to edit the words on this page.</p>
     <form id="mlLoginForm">
       <label for="mlAdminPassword" style="font-size:13px;color:#cfeff5">Password</label>
-      <input id="mlAdminPassword" type="password" autocomplete="current-password" required>
+      <input id="mlAdminPassword" type="password" autocomplete="current-password" required="">
       <p id="mlLoginError" class="ml-admin-status" role="alert" style="color:#ffb4b4"></p>
       <div class="flex gap-2 justify-end">
         <button type="button" id="mlLoginCancel" class="btn2" style="padding:11px 18px">Cancel</button>
@@ -428,7 +411,7 @@ body.ml-preview-mode #mlAdminPanel{display:none!important}
   </div>
 </div>
 
-<aside id="mlAdminPanel" hidden aria-label="MecheLab local content editor">
+<aside id="mlAdminPanel" aria-label="MecheLab local content editor" hidden="">
   <div class="ml-admin-top">
     <h2>Local content editor</h2>
     <button type="button" id="mlAdminClose" aria-label="Close admin panel">Close</button>
@@ -441,7 +424,7 @@ body.ml-preview-mode #mlAdminPanel{display:none!important}
     <button type="button" id="mlCancelEdits">Clear edit focus</button>
     <button type="button" id="mlExport" class="ml-export">Export updated index.html</button>
   </div>
-  <p id="mlAdminStatus" class="ml-admin-status" aria-live="polite">Changes are live in this browser until you export the HTML.</p>
+  <p id="mlAdminStatus" class="ml-admin-status" aria-live="polite">Text editing is off. Your current changes remain on the page.</p>
 </aside>
 
 <!-- three.js (the 3D library), pinned to an exact version -->
@@ -843,5 +826,6 @@ $("#enqForm").addEventListener("submit", (e)=>{
   });
 })();
 </script>
-</body>
-</html>
+
+
+</body></html>
