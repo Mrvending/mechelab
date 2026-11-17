@@ -1,0 +1,847 @@
+<!doctype html>
+<!--
+  MECHELAB: SINGLE-FILE WEBSITE
+  ------------------------------------------------------------
+  Everything lives in this one file:
+    1. <head>   : page title, search description, libraries (Tailwind + fonts), custom CSS
+    2. <body>   : the 3D background canvas, the floating menu, then four "views":
+                  home, enquire, legal
+    3. <script> : (a) your editable CONTENT, (b) the code that draws it,
+                  (c) page switching, (d) forms, (e) the three.js 3D scene
+
+  HOW PAGES WORK: this is one HTML file. Links such as #enquire and #legal switch which
+  "view" is visible; data-scroll links move to sections within the home view.
+
+  TO EDIT TEXT: look for the section marked "CONTENT" in the script at the bottom,
+  or search for a sentence in this file and change it.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- viewport-fit=cover lets the page sit properly on phones with notches -->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MecheLab | Web design, consulting and digital products</title>
+<!-- Search engines show this under your link. Keep it under about 155 characters. -->
+<meta name="description" content="MecheLab is a web design and consulting studio giving growing businesses fast, searchable websites plus clear business and technical advice, reports and recommendations.">
+
+<!-- LIBRARIES: Tailwind (layout utilities) and Google Fonts (Unbounded for headlines, Manrope for body) -->
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=Unbounded:wght@300;500&display=swap">
+<script>
+  // Tell Tailwind about our two font families so classes like font-disp work
+  tailwind.config = { theme: { extend: { fontFamily: { disp: ['Unbounded','Manrope','sans-serif'], body: ['Manrope','system-ui','sans-serif'] } } } };
+</script>
+
+<style>
+/* ===== COLOUR TOKENS: change the whole palette here =====
+   MecheLab is a dark brand, so the same values apply in light and dark mode. */
+:root{--ink:#ffffff;--muted:#cfeff5;--cyan:#5ee0f0;--mint:#6df5c4;--violet:#b58cff;--bg1:#020912;--bg2:#04233a;--bg3:#06324a;--on-accent:#03212e}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#ffffff;--muted:#cfeff5;--cyan:#5ee0f0;--mint:#6df5c4;--violet:#b58cff;--bg1:#020912;--bg2:#04233a;--bg3:#06324a;--on-accent:#03212e}}
+:root[data-theme="dark"]{--ink:#ffffff;--muted:#cfeff5;--cyan:#5ee0f0;--mint:#6df5c4;--violet:#b58cff;--bg1:#020912;--bg2:#04233a;--bg3:#06324a;--on-accent:#03212e}
+
+/* ===== PAGE BASICS ===== */
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 90px);scroll-behavior:smooth}
+body{margin:0;min-height:100%;background:var(--bg1) linear-gradient(160deg,var(--bg1),var(--bg2) 50%,var(--bg3));color:var(--ink);font-family:Manrope,system-ui,sans-serif}
+.view[hidden]{display:none}
+/* The 3D canvas sits behind everything; the veil darkens it so text stays readable */
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:0}
+.veil{position:fixed;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,rgba(2,9,18,.84),rgba(2,9,18,.4) 65%,rgba(2,9,18,.55))}
+#nav,main,footer{position:relative;z-index:2}
+
+/* ===== TYPE ===== */
+.disp{font-family:Unbounded,Manrope,sans-serif;font-weight:300;letter-spacing:-.02em}
+.g{background:linear-gradient(90deg,var(--cyan),#7b9bff 55%,var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--muted);line-height:1.65}
+.note{color:var(--mint);font-size:15px}
+
+/* ===== BUTTONS ===== */
+.btn{display:inline-block;background:linear-gradient(90deg,var(--cyan),var(--mint));color:var(--on-accent);padding:15px 30px;border-radius:999px;font-weight:600;text-decoration:none;border:0;cursor:pointer;font:inherit;font-weight:600;transition:transform .3s,box-shadow .3s}
+.btn:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(94,224,240,.45)}
+.btn2{display:inline-block;background:rgba(255,255,255,.14);color:#fff;padding:15px 30px;border-radius:999px;text-decoration:none;transition:background .3s}
+.btn2:hover{background:rgba(255,255,255,.24)}
+a:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+
+/* ===== FLOATING GLASS PANELS (no borders, soft shadows) ===== */
+.glass{background:linear-gradient(145deg,rgba(255,255,255,.13),rgba(255,255,255,.04));box-shadow:0 30px 60px -22px rgba(0,8,24,.7),inset 0 1px 0 rgba(255,255,255,.12);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:24px;transition:transform .4s,box-shadow .4s}
+.glass:hover{transform:translateY(-6px);box-shadow:0 44px 90px -24px rgba(25,211,218,.35),inset 0 1px 0 rgba(255,255,255,.22)}
+.chip{display:inline-block;padding:6px 14px;background:rgba(94,224,240,.16);border-radius:999px;font-size:13px;margin:14px 8px 0 0;color:var(--muted)}
+
+/* ===== NAVIGATION PILL ===== */
+#nav{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);left:50%;transform:translateX(-50%);width:min(1240px,calc(100% - 24px));z-index:50;display:flex;align-items:center;justify-content:space-between;padding:10px 12px 10px 26px;border-radius:999px;background:rgba(4,20,34,.66);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 22px 50px -20px rgba(0,8,24,.85)}
+#menu{position:fixed;top:calc(env(safe-area-inset-top,0px) + 76px);left:12px;right:12px;z-index:49;padding:20px;border-radius:24px;background:rgba(4,20,34,.92);backdrop-filter:blur(16px);display:flex;flex-direction:column;gap:6px}
+#menu[hidden]{display:none}
+#menu a{padding:12px 8px;color:var(--muted);text-decoration:none;font-size:17px}
+
+/* ===== SERVICES DROPDOWN ===== */
+#svcWrap{position:relative}
+#svcBtn{display:inline-flex;align-items:center;gap:6px;background:none;border:0;color:var(--muted);font:inherit;cursor:pointer;padding:0}
+#svcBtn:hover,#svcBtn[aria-expanded="true"]{color:#fff}
+#svcBtn svg{transition:transform .3s}
+#svcBtn[aria-expanded="true"] svg{transform:rotate(180deg)}
+#svcMenu{position:absolute;top:calc(100% + 22px);left:50%;transform:translateX(-50%);width:270px;padding:10px;border-radius:22px;background:rgba(4,20,34,.95);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 30px 60px -20px rgba(0,8,24,.9)}
+#svcMenu[hidden]{display:none}
+#svcMenu a{display:block;padding:12px 16px;border-radius:14px;text-decoration:none;color:#fff;transition:background .2s}
+#svcMenu a:hover{background:rgba(255,255,255,.1)}
+#svcMenu small{display:block;color:var(--muted);font-size:13px;margin-top:2px}
+
+/* ===== EXPANDING ROWS (services, FAQ): native open/close, no scripting ===== */
+details.svc{border-radius:24px;padding:26px 32px;margin-bottom:16px;background:linear-gradient(145deg,rgba(255,255,255,.12),rgba(255,255,255,.03));box-shadow:0 26px 54px -24px rgba(0,8,24,.7);transition:box-shadow .4s}
+details.svc:hover{box-shadow:0 40px 80px -26px rgba(25,211,218,.35)}
+details.svc summary{display:flex;align-items:center;gap:20px;cursor:pointer;list-style:none}
+details.svc summary::-webkit-details-marker{display:none}
+details.svc .t{font-family:Unbounded,Manrope,sans-serif;font-weight:300;font-size:clamp(18px,2.4vw,28px);flex:1}
+details.svc .pl{font-size:32px;color:var(--mint);transition:transform .35s}
+details.svc[open] .pl{transform:rotate(45deg)}
+details.svc .body{padding-top:16px;max-width:760px}
+
+/* ===== BENTO GRID: named areas keep every row aligned ===== */
+.bento{display:grid;gap:20px;grid-template-columns:repeat(4,1fr);grid-auto-rows:minmax(250px,auto);grid-template-areas:"ba ba bb bc" "bd be be bf"}
+.bento .glass{padding:32px;display:flex;flex-direction:column;justify-content:center}
+.ba{grid-area:ba}.bb{grid-area:bb;align-items:center}.bc{grid-area:bc}.bd{grid-area:bd}.be{grid-area:be}.bf{grid-area:bf}
+@media(max-width:900px){.bento{grid-template-columns:1fr 1fr;grid-template-areas:"ba ba" "bb bc" "bd bf" "be be"}}
+@media(max-width:560px){.bento{grid-template-columns:1fr;grid-template-areas:"ba" "bb" "bc" "bd" "be" "bf"}}
+.orb{width:140px;height:140px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#9ff6ff,#2f7bff 55%,#3a1fb8);box-shadow:0 24px 60px rgba(47,123,255,.6);animation:flt 7s ease-in-out infinite}
+.draw{stroke-dasharray:500;stroke-dashoffset:500;animation:drw 4s ease-in-out infinite alternate}
+.bars{display:flex;align-items:flex-end;gap:8px;height:56px;margin-top:20px}
+.bars i{flex:1;background:linear-gradient(#5ee0f0,#2f7bff);border-radius:4px 4px 0 0;transform-origin:bottom;animation:grow 3s ease-in-out infinite alternate}
+
+/* ===== FLOATING 3D MOCK-UPS (phone, website, slides) ===== */
+.stage{position:relative;height:470px;flex:1;min-width:340px;max-width:600px;perspective:1400px}
+.sl{position:absolute;overflow:hidden;box-sizing:border-box;border-radius:18px;padding:22px;background:linear-gradient(145deg,rgba(255,255,255,.22),rgba(255,255,255,.05));box-shadow:0 44px 80px -24px rgba(0,8,24,.85);animation:slf 7s ease-in-out infinite;transform:rotateY(-20deg) rotateX(8deg)}
+.sl::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 40%,rgba(255,255,255,.22) 50%,transparent 60%);transform:translateX(-120%);animation:shn 6s ease-in-out infinite}
+.sk{height:8px;border-radius:4px;background:rgba(255,255,255,.28);margin-top:10px}
+.bx{height:8px;border-radius:4px;background:linear-gradient(90deg,#5ee0f0,#7b6cff);transform-origin:left;animation:growx 4s ease-in-out infinite alternate;margin-top:10px}
+.lab{font-size:12px;color:var(--mint);margin:0 0 10px}
+.dots{height:2px;background:repeating-linear-gradient(90deg,rgba(94,224,240,.9) 0 3px,transparent 3px 10px);background-size:10px 2px;animation:dash 1s linear infinite}
+.dotp{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--mint);animation:pulse 2s ease-in-out infinite}
+.av{border-radius:26px;overflow:hidden;box-shadow:0 30px 60px -22px rgba(0,8,24,.8);flex:none}
+.cover{height:170px;border-radius:18px;margin-bottom:22px;position:relative;overflow:hidden}
+
+/* ===== RIBBON ===== */
+.mq{display:flex;width:max-content;gap:48px;animation:marq 30s linear infinite;white-space:nowrap}
+
+/* ===== FORMS: filled fields, no outlines ===== */
+.field{display:block;width:100%;box-sizing:border-box;margin-top:8px;padding:14px 16px;min-height:48px;background:rgba(255,255,255,.1);border:0;border-radius:14px;color:#fff;font:inherit;font-size:16px;box-shadow:inset 0 2px 8px rgba(0,0,0,.35)}
+.field option{color:#03212e}
+
+/* ===== MOTION ===== */
+@keyframes flt{50%{transform:translateY(-22px)}}
+@keyframes slf{50%{translate:0 -16px}}
+@keyframes shn{55%,100%{transform:translateX(120%)}}
+@keyframes drw{to{stroke-dashoffset:0}}
+@keyframes grow{from{transform:scaleY(.3)}}
+@keyframes growx{from{transform:scaleX(.35)}}
+@keyframes dash{to{background-position:10px 0}}
+@keyframes pulse{50%{opacity:.3;transform:scale(1.7)}}
+@keyframes marq{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* ===== LOCAL CMS: admin-only styles (kept separate from the public site design) ===== */
+#mlLoginModal[hidden],#mlAdminPanel[hidden]{display:none!important}
+#mlLoginModal{position:fixed;inset:0;z-index:2000;display:grid;place-items:center;padding:20px;background:rgba(0,5,14,.76);backdrop-filter:blur(12px)}
+.ml-admin-card{width:min(430px,100%);padding:28px;border-radius:22px;background:linear-gradient(145deg,rgba(10,35,54,.98),rgba(3,13,25,.98));border:1px solid rgba(94,224,240,.22);box-shadow:0 30px 90px rgba(0,0,0,.55);color:#fff}
+.ml-admin-card h2{font-family:Unbounded,Manrope,sans-serif;font-weight:300;font-size:19px;margin:0 0 10px}
+.ml-admin-card p{color:#cfeff5;line-height:1.6;font-size:13px}
+.ml-admin-card input{width:100%;box-sizing:border-box;margin:12px 0 16px;padding:13px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.09);color:#fff;font:inherit}
+#mlAdminPanel{position:fixed;right:18px;bottom:18px;z-index:1500;width:min(360px,calc(100vw - 36px));padding:18px;border-radius:20px;background:rgba(4,20,34,.94);border:1px solid rgba(94,224,240,.22);box-shadow:0 22px 70px rgba(0,0,0,.48);backdrop-filter:blur(18px);color:#fff}
+#mlAdminPanel h2{font-family:Unbounded,Manrope,sans-serif;font-size:15px;font-weight:300;margin:0}
+#mlAdminPanel p{font-size:12px;line-height:1.55;color:#cfeff5;margin:8px 0 12px}
+.ml-admin-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ml-admin-actions button,.ml-admin-top button{border:1px solid rgba(255,255,255,.16);border-radius:999px;padding:10px 12px;background:rgba(255,255,255,.09);color:#fff;font:inherit;font-size:12px;cursor:pointer}
+.ml-admin-actions button:hover,.ml-admin-top button:hover{background:rgba(94,224,240,.18)}
+.ml-admin-actions .ml-export{grid-column:1/-1;background:linear-gradient(90deg,#5ee0f0,#6df5c4);color:#03212e;border:0;font-weight:700;padding:13px}
+.ml-admin-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.ml-admin-status{min-height:18px}
+body.ml-edit-mode [data-ml-editable="true"]{outline:1px dashed rgba(94,224,240,.72);outline-offset:4px;cursor:text}
+body.ml-edit-mode [data-ml-editable="true"]:hover{background:rgba(94,224,240,.07)}
+body.ml-preview-mode #mlAdminPanel{display:none!important}
+@media(max-width:560px){#mlAdminPanel{right:10px;bottom:10px;width:calc(100vw - 20px)}}
+
+</style>
+</head>
+
+<body>
+<!-- 3D BACKGROUND: drawn by three.js (see the script at the bottom) -->
+<canvas id="bg" aria-hidden="true"></canvas>
+<div class="veil"></div>
+
+<!-- ============ NAVIGATION ============
+     Links with data-scroll jump to a section on the home view.
+     Links with a plain #name switch to another view. -->
+<header id="nav">
+  <a href="#home" class="font-disp text-lg tracking-wide text-white no-underline" aria-label="MecheLab home">MecheLab</a>
+  <nav class="hidden md:flex items-center gap-7 text-[15px]" aria-label="Main">
+    <a href="#home" data-scroll="about" class="text-[var(--muted)] no-underline hover:text-white">About</a>
+    <!-- SERVICES DROPDOWN: click to open; the three links inside are the old nav items -->
+    <div id="svcWrap">
+      <button id="svcBtn" type="button" aria-expanded="false" aria-haspopup="true" aria-controls="svcMenu">Services <svg viewBox="0 0 12 8" width="12" height="8" aria-hidden="true"><path d="M1 1.5l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+      <div id="svcMenu" hidden>
+        <a href="#home" data-scroll="web-design">Web design<small>Websites that perform</small></a>
+        <a href="#home" data-scroll="consulting">Consulting<small>Business and technical advice</small></a>
+        <a href="#home" data-scroll="digital-products">Digital products<small>Coming soon</small></a>
+      </div>
+    </div>
+    <a href="#enquire" class="btn" style="padding:12px 24px">Send an enquiry</a>
+  </nav>
+  <!-- Phone menu button (shown on small screens only) -->
+  <div class="flex md:hidden items-center gap-2">
+    <a href="#enquire" class="btn" style="padding:10px 18px;font-size:14px">Enquire</a>
+    <button id="menuBtn" class="btn2" style="padding:10px 16px" aria-expanded="false" aria-controls="menu">Menu</button>
+  </div>
+</header>
+<div id="menu" hidden>
+  <a href="#home">Home</a>
+  <a href="#home" data-scroll="about">About</a>
+  <p class="note" style="margin:10px 8px 0">Services</p>
+  <a href="#home" data-scroll="web-design">Web design</a>
+  <a href="#home" data-scroll="consulting">Consulting</a>
+  <a href="#home" data-scroll="digital-products">Digital products</a>
+</div>
+
+<main>
+
+<!-- ============================================================
+     VIEW 1: HOME (one long page: hero, consulting, web design, and more)
+     ============================================================ -->
+<div class="view" data-view="home">
+
+  <!-- HERO: the 3D honeycomb behind it responds to your cursor -->
+  <section class="min-h-[100svh] flex items-center px-6 md:px-16 pt-32 pb-20">
+    <div class="max-w-[1280px] mx-auto w-full">
+      <p class="note mb-5">Strategy · Design · Growth</p>
+      <h1 class="disp text-[clamp(2.3rem,5.4vw,4.6rem)] leading-[1.06] max-w-[14ch] md:max-w-[16ch]">Strategy that sharpens.<br><span class="g">Design that performs.</span></h1>
+      <p class="sub text-lg md:text-xl max-w-[34rem] mt-7 mb-10">A consulting and design partner for businesses ready to lead their category, from the first idea to the final pixel.</p>
+      <div class="flex flex-wrap gap-4">
+        <a class="btn" href="#enquire">Send an enquiry</a>
+        <a class="btn2" href="#home" data-scroll="web-design">Web design</a>
+        <a class="btn2" href="#home" data-scroll="consulting">Consulting</a>
+        <a class="btn2" href="#home" data-scroll="digital-products">Digital products</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- RIBBON: keywords scroll endlessly (the list is doubled so the loop is seamless) -->
+  <div class="overflow-hidden py-6 font-disp text-xl text-[var(--muted)] bg-[rgba(2,9,18,.45)]" aria-hidden="true">
+    <div class="mq" id="ribbon"></div>
+  </div>
+
+  <!-- ABOUT: first section after the ribbon. A plain-language summary for visitors who want consulting or web design. -->
+  <section id="about" class="px-6 md:px-16 pt-28 pb-10">
+    <div class="max-w-[1280px] mx-auto">
+      <p class="note mb-5">About MecheLab</p>
+      <h2 class="disp text-[clamp(1.8rem,3.8vw,3.1rem)] leading-[1.15] max-w-[24ch] md:max-w-[30ch]">An independent Australian studio, focused on considered work and lasting client relationships.</h2>
+      <p class="sub text-lg max-w-[40rem] mt-6 mb-12">MecheLab is an independent, Australia-based studio working directly with a select number of clients. Our approach is deliberately considered: we take the time to understand the commercial context, priorities and constraints behind each brief, then shape a practical response around the needs of the business. By keeping the operation focused and the relationship direct, we provide clear advice, careful execution and continuity from the first conversation through to delivery.</p>
+      <div class="grid gap-6 md:grid-cols-3">
+        <div class="glass p-8 md:p-10"><h3 class="disp text-xl mb-3">Web design</h3><p class="sub mb-6">Fast, search-friendly websites and landing pages built to attract more of the right visitors.</p><a href="#home" data-scroll="web-design" class="text-[var(--cyan)]">See web design</a></div>
+        <div class="glass p-8 md:p-10"><h3 class="disp text-xl mb-3">Consulting</h3><p class="sub mb-6">Business and technical advice: a clear review, a growth plan and recommendations that suit your business.</p><a href="#home" data-scroll="consulting" class="text-[var(--cyan)]">See consulting</a></div>
+        <div class="glass p-8 md:p-10"><h3 class="disp text-xl mb-3">Digital products</h3><p class="sub mb-6">Toolkits and templates for businesses that want to do it themselves. Coming soon.</p><a href="#home" data-scroll="digital-products" class="text-[var(--cyan)]">See what’s coming</a></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICE SECTIONS: wrapped so their display order is set by order-1 / order-2 on each section. Web design shows first; swap the numbers to change it. -->
+  <div class="flex flex-col">
+  <!-- CONSULTING -->
+  <section id="consulting" class="order-2 px-6 md:px-16 pt-28 pb-10">
+    <div class="max-w-[1280px] mx-auto">
+      <div class="flex flex-wrap items-center gap-14">
+        <div class="flex-1 min-w-[300px] max-w-[520px]">
+          <h2 class="disp text-[clamp(1.8rem,3.4vw,2.8rem)] leading-tight mb-5">Business and technical advice that gives you a <span class="g">clear way forward.</span></h2>
+          <p class="sub text-lg">Practical advice on both the business and the technology behind it. We review where you are today, plan how you’ll grow, and give you clear reports and recommendations that suit your business.</p>
+        </div>
+        <!-- Floating strategy mock-ups (illustrative samples, built with CSS only) -->
+        <div class="stage" aria-hidden="true">
+          <div class="sl" style="left:0;top:10px;width:310px;height:190px"><p class="lab">Review report (sample)</p><p class="disp" style="font-size:17px;margin:0;font-weight:500">Where you are. Where to go next.</p><div class="bx" style="width:85%"></div><div class="bx" style="width:65%;animation-delay:-1s"></div><div class="bx" style="width:45%;animation-delay:-2s"></div></div>
+          <div class="sl" style="left:270px;top:70px;width:290px;height:170px;animation-delay:-3s;z-index:2"><p class="lab">Roadmap (sample)</p><div style="display:flex;align-items:center;margin-top:26px"><i class="dotp" style="width:12px;height:12px"></i><div class="dots" style="flex:1"></div><i class="dotp" style="width:12px;height:12px;animation-delay:-1s"></i><div class="dots" style="flex:1"></div><i class="dotp" style="width:12px;height:12px;animation-delay:-2s"></i></div><div style="display:flex;justify-content:space-between;margin-top:14px;font-size:12px;color:var(--muted)"><span>Q1</span><span>Q2</span><span>Q3</span></div></div>
+          <div class="sl" style="left:80px;top:250px;width:320px;height:200px;animation-delay:-5s;z-index:3"><p class="lab">Priorities map (sample)</p><div style="position:relative;height:130px;border-radius:12px;background:rgba(0,8,24,.3)"><i class="dotp" style="position:absolute;left:24%;top:60%;width:10px;height:10px"></i><i class="dotp" style="position:absolute;left:62%;top:28%;width:10px;height:10px;animation-delay:-1s"></i><i class="dotp" style="position:absolute;left:78%;top:68%;width:10px;height:10px;animation-delay:-2s"></i><i style="position:absolute;left:44%;top:40%;width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#5ee0f0,#7b6cff);box-shadow:0 0 24px #5ee0f0"></i></div></div>
+        </div>
+      </div>
+      <div id="consultingRows" class="mt-16"></div>
+    </div>
+  </section>
+
+  <!-- WEB DESIGN -->
+  <section id="web-design" class="order-1 px-6 md:px-16 pt-24 pb-10">
+    <div class="max-w-[1280px] mx-auto">
+      <div class="flex flex-wrap items-center gap-14">
+        <div class="flex-1 min-w-[300px] max-w-[520px]">
+          <h2 class="disp text-[clamp(1.8rem,3.4vw,2.8rem)] leading-tight mb-5">Websites built to be found, and to <span class="g">turn visitors into customers.</span></h2>
+          <p class="sub text-lg">Fast, mobile-first sites that search engines and AI assistants can find and understand, designed around the internet presence you already have: your domain, profiles, listings and content.</p>
+        </div>
+        <div class="stage" aria-hidden="true">
+          <div class="sl" style="left:0;top:20px;width:120px;height:230px;border-radius:26px;padding:16px;animation-delay:-2s;z-index:1"><div style="width:40px;height:6px;border-radius:3px;background:rgba(255,255,255,.4);margin:0 auto 14px"></div><div style="height:70px;border-radius:12px;background:linear-gradient(135deg,#5ee0f0,#7b6cff)"></div><div class="sk"></div><div class="sk" style="width:70%"></div><div class="sk" style="width:85%"></div><div style="height:26px;border-radius:13px;background:#6df5c4;margin-top:16px"></div></div>
+          <div class="sl" style="left:90px;top:190px;width:340px;height:230px;padding:0;animation-delay:-4s;z-index:2"><div style="display:flex;gap:6px;padding:12px 16px;background:rgba(0,8,24,.35)"><i style="width:8px;height:8px;border-radius:50%;background:#ff7a8a"></i><i style="width:8px;height:8px;border-radius:50%;background:#ffd166"></i><i style="width:8px;height:8px;border-radius:50%;background:#6df5c4"></i></div><div style="padding:20px"><div style="height:80px;border-radius:12px;background:linear-gradient(120deg,#19d3da,#3a1fb8)"></div><div class="sk" style="width:60%;height:12px"></div><div class="sk"></div><div class="sk" style="width:80%"></div><div style="width:96px;height:26px;border-radius:13px;background:#6df5c4;margin-top:16px"></div></div></div>
+          <div class="sl" style="left:260px;top:0;width:300px;height:190px"><p class="lab">Design system (sample)</p><div style="display:flex;gap:8px"><i style="width:40px;height:40px;border-radius:10px;background:#19d3da"></i><i style="width:40px;height:40px;border-radius:10px;background:#2f7bff"></i><i style="width:40px;height:40px;border-radius:10px;background:#7b6cff"></i><i style="width:40px;height:40px;border-radius:10px;background:#6df5c4"></i></div><p class="disp" style="font-size:38px;margin:14px 0 0">Aa</p><div class="sk" style="width:70%"></div></div>
+        </div>
+      </div>
+      <div id="webRows" class="mt-16"></div>
+    </div>
+  </section>
+
+  <!-- DIGITAL PRODUCTS: same layout as the two sections above (text left, mock-ups right, expanding rows below). Shows third via order-3. -->
+  <section id="digital-products" class="order-3 px-6 md:px-16 pt-24 pb-10">
+    <div class="max-w-[1280px] mx-auto">
+      <div class="flex flex-wrap items-center gap-14">
+        <div class="flex-1 min-w-[300px] max-w-[520px]">
+          <h2 class="disp text-[clamp(1.8rem,3.4vw,2.8rem)] leading-tight mb-5">Digital products for businesses that <span class="g">like to do it themselves.</span></h2>
+          <p class="sub text-lg">Coming soon: practical toolkits, templates and guides drawn from our web design and consulting work, so you can put the same thinking to work in your own time.</p>
+        </div>
+        <div class="stage" aria-hidden="true">
+          <div class="sl" style="left:0;top:20px;width:250px;height:230px"><p class="lab">Launch checklist (sample)</p><div style="display:flex;align-items:center;gap:10px;margin-top:16px"><i class="dotp" style="flex:none"></i><div class="sk" style="flex:1;margin:0"></div></div><div style="display:flex;align-items:center;gap:10px;margin-top:16px"><i class="dotp" style="flex:none;animation-delay:-.5s"></i><div class="sk" style="flex:1;margin:0;width:70%"></div></div><div style="display:flex;align-items:center;gap:10px;margin-top:16px"><i class="dotp" style="flex:none;animation-delay:-1s"></i><div class="sk" style="flex:1;margin:0"></div></div><div style="display:flex;align-items:center;gap:10px;margin-top:16px"><i class="dotp" style="flex:none;animation-delay:-1.5s"></i><div class="sk" style="flex:1;margin:0;width:60%"></div></div></div>
+          <div class="sl" style="left:230px;top:0;width:320px;height:190px;animation-delay:-3s;z-index:2"><p class="lab">Growth plan template (sample)</p><p class="disp" style="font-size:17px;margin:0;font-weight:500">Goals, priorities, next steps.</p><div class="bx" style="width:80%"></div><div class="bx" style="width:60%;animation-delay:-1s"></div><div class="bx" style="width:40%;animation-delay:-2s"></div></div>
+          <div class="sl" style="left:110px;top:250px;width:340px;height:200px;animation-delay:-5s;z-index:3"><p class="lab">Review worksheet (sample)</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div style="height:56px;border-radius:12px;background:rgba(0,8,24,.3)"></div><div style="height:56px;border-radius:12px;background:linear-gradient(135deg,#19d3da,#3a1fb8)"></div><div style="height:56px;border-radius:12px;background:linear-gradient(135deg,#2f7bff,#7b6cff)"></div><div style="height:56px;border-radius:12px;background:rgba(0,8,24,.3)"></div></div><div class="sk" style="width:70%"></div></div>
+        </div>
+      </div>
+      <div id="digitalRows" class="mt-16"></div>
+    </div>
+  </section>
+  </div>
+
+  <!-- WHY MECHELAB: bento grid of standards (no invented stats) -->
+  <section class="px-6 md:px-16 pt-24 pb-10">
+    <div class="max-w-[1280px] mx-auto">
+      <h2 class="disp text-[clamp(1.8rem,3.4vw,2.8rem)] leading-tight mb-12">Built around your results</h2>
+      <div class="bento">
+        <div class="glass ba"><h3 class="disp text-[clamp(1.4rem,2.4vw,2rem)] leading-snug mb-4">Focused on results, not just deliverables.</h3><p class="sub m-0">Every recommendation and design decision is tied to a goal you care about: more visitors, more enquiries and less guesswork.</p>
+          <svg viewBox="0 0 400 80" width="100%" height="80" aria-hidden="true" style="margin-top:24px"><path class="draw" d="M0,70 C50,60 80,66 120,44 S190,50 230,30 S320,36 360,12 L400,6" fill="none" stroke="#5ee0f0" stroke-width="3" stroke-linecap="round"/></svg></div>
+        <div class="glass bb" style="align-items:flex-start"><h3 class="disp g text-2xl mb-4">Built to be found</h3><ul class="sub m-0 p-0 list-none leading-9"><li><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--mint);margin-right:12px"></i>Fast on every device</li><li><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--mint);margin-right:12px"></i>Secure by default</li><li><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--mint);margin-right:12px"></i>Ready for search</li><li><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--mint);margin-right:12px"></i>Readable by AI assistants</li></ul></div>
+        <div class="glass bc"><h3 class="disp g text-2xl mb-3">Measured results</h3><p class="sub m-0">We track the numbers that matter and report back in plain language.</p></div>
+        <div class="glass bd"><h3 class="disp g text-2xl mb-3">Fixed scope</h3><p class="sub m-0">Clear deliverables and pricing, agreed upfront.</p></div>
+        <div class="glass be"><h3 class="disp text-xl mb-3">What you get</h3><p class="sub m-0">A review of where you stand, a clear growth plan, written recommendations and a bespoke website, with a team that stays in your corner.</p>
+          <div class="bars" aria-hidden="true"><i style="height:40%"></i><i style="height:65%;animation-delay:-.6s"></i><i style="height:50%;animation-delay:-1.2s"></i><i style="height:85%;animation-delay:-1.8s"></i><i style="height:100%;animation-delay:-2.4s"></i></div></div>
+        <div class="glass bf"><h3 class="disp g text-xl mb-3">Who this is for</h3><p class="sub m-0">Founders and leadership teams ready to get clear advice on where they stand and where to grow, backed by a standout website.</p></div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- PROCESS: a true sequence, so numbering is used here -->
+  <section class="px-6 md:px-16 pt-6 pb-24">
+    <div class="max-w-[1280px] mx-auto">
+      <h2 class="disp text-[clamp(1.8rem,3.4vw,2.8rem)] leading-tight mb-10">A clear path from idea to impact.</h2>
+      <div class="dots"></div>
+      <div id="process" class="flex flex-wrap gap-10 pt-9"></div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="px-6 md:px-16 pt-24 pb-10">
+    <div class="max-w-[1000px] mx-auto">
+      <h2 class="disp text-[clamp(1.8rem,3.4vw,2.8rem)] leading-tight mb-10">Questions, answered.</h2>
+      <div id="faq"></div>
+    </div>
+  </section>
+
+  <!-- CLOSING CALL TO ACTION -->
+  <section class="px-6 md:px-16 py-20">
+    <div class="max-w-[1280px] mx-auto rounded-[32px] text-center px-8 py-20" style="background:linear-gradient(120deg,#0a4f9a,#0a8fa6 60%,#6a5cff);box-shadow:0 44px 90px -24px rgba(25,211,218,.5)">
+      <h2 class="disp text-[clamp(1.8rem,4vw,3rem)] mb-4">Let’s build your advantage.</h2>
+      <p class="mb-8 text-lg text-white">Tell us where you want to be. We will map the way there.</p>
+      <a class="btn" href="#enquire">Send an enquiry</a>
+    </div>
+  </section>
+
+</div>
+
+<!-- ============================================================
+     VIEW 3: PRIVACY AND TERMS (separate page)
+     ============================================================ -->
+<div class="view" data-view="legal" hidden>
+  <section class="px-6 md:px-16 pt-40 pb-24">
+    <div class="max-w-[860px] mx-auto">
+      <h1 class="disp text-[clamp(2rem,4.4vw,3.4rem)] leading-[1.1] mb-12">Privacy <span class="g">&amp; terms.</span></h1>
+      <div id="privacy" class="glass p-8 md:p-10 mb-7">
+        <h2 class="disp text-xl mb-4">Privacy policy</h2>
+        <p class="sub mb-3"><strong>What we collect.</strong> Details you share through our forms, such as your name, email and message.</p>
+        <p class="sub mb-3"><strong>How we use it.</strong> To respond to your enquiry and improve our services. We do not sell your information.</p>
+        <p class="sub mb-3"><strong>Sharing and storage.</strong> We only share information with trusted providers who help us run the business, and keep it only as long as needed.</p>
+        <p class="sub m-0"><strong>Your choices.</strong> You can ask to access, correct or delete your information by submitting an enquiry through our contact form.</p>
+      </div>
+      <div id="terms" class="glass p-8 md:p-10">
+        <h2 class="disp text-xl mb-4">Terms of use</h2>
+        <p class="sub mb-3"><strong>Use of our services and products.</strong> Our services and products are provided for general information and are not a substitute for professional advice.</p>
+        <p class="sub mb-3"><strong>Ownership.</strong> All content, branding, designs and materials associated with our services and products belong to MecheLab unless stated otherwise.</p>
+        <p class="sub mb-3"><strong>No warranty.</strong> We aim for accuracy and quality but provide our services and products without guarantees, and are not liable for reliance on information provided.</p>
+        <p class="sub m-0"><strong>Changes.</strong> We may update these terms and our services and products from time to time.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============================================================
+     VIEW 4: ENQUIRE
+     ============================================================ -->
+<div class="view" data-view="enquire" hidden>
+  <section class="px-6 md:px-16 pt-40 pb-24">
+    <div class="max-w-[1280px] mx-auto flex flex-wrap gap-16">
+      <div class="flex-1 min-w-[300px] max-w-[480px]">
+        <h1 class="disp text-[clamp(2rem,4.4vw,3.4rem)] leading-[1.1]">Let’s talk about <span class="g">what’s next.</span></h1>
+        <p class="sub text-lg mt-6 mb-8">Share a few details and we will come back with ideas, a clear next step and a straight answer on fit.</p>
+        <div class="dots"></div>
+        <p class="sub mt-6"><span class="dotp"></span> &nbsp;We read and reply to every enquiry</p>
+      </div>
+      <div class="glass flex-1 min-w-[300px] max-w-[600px] p-8 md:p-10">
+        <form id="enqForm" novalidate>
+          <label class="block mb-5 text-[15px]">Name<input class="field" type="text" name="name" required autocomplete="name"></label>
+          <label class="block mb-5 text-[15px]">Email<input class="field" type="email" name="email" required autocomplete="email"></label>
+          <label class="block mb-5 text-[15px]">I’m interested in<select class="field" name="interest"><option>Consulting</option><option>Web design</option><option>Both</option><option>Digital products</option><option>Not sure yet</option></select></label>
+          <label class="block mb-7 text-[15px]">Message<textarea class="field" name="message" rows="5" required style="resize:vertical"></textarea></label>
+          <button class="btn" type="submit">Send enquiry</button>
+          <p id="enqMsg" class="note mt-4" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </div>
+  </section>
+</div>
+
+</main>
+
+<!-- FOOTER (shared by every view): legal links and business details -->
+<footer class="px-6 md:px-16 py-10 text-sm text-[var(--muted)]">
+  <div class="max-w-[1280px] mx-auto flex flex-wrap items-center justify-between gap-5">
+    <span>© 2026 MecheLab. All rights reserved. &nbsp;|&nbsp; ABN 26 794 710 415 trading as MecheLab.</span>
+    <span class="flex gap-6"><a href="#legal" data-scroll="privacy" class="text-[var(--muted)]">Privacy policy</a><a href="#legal" data-scroll="terms" class="text-[var(--muted)]">Terms of use</a><a href="#" id="mlAdminLink" class="font-disp text-[var(--muted)] tracking-wide" aria-label="Open MecheLab editor" title="MecheLab editor" style="opacity:.62;font-size:11px;text-decoration:none">MecheLab</a></span>
+  </div>
+</footer>
+
+
+<!-- ============================================================
+     LOCAL CMS: hidden until you click the small Admin link.
+     This editor runs only in this browser; it does not need a server.
+     ============================================================ -->
+<div id="mlLoginModal" hidden role="dialog" aria-modal="true" aria-labelledby="mlLoginTitle">
+  <div class="ml-admin-card">
+    <h2 id="mlLoginTitle">MecheLab admin</h2>
+    <p>Enter your local admin password to edit the words on this page.</p>
+    <form id="mlLoginForm">
+      <label for="mlAdminPassword" style="font-size:13px;color:#cfeff5">Password</label>
+      <input id="mlAdminPassword" type="password" autocomplete="current-password" required>
+      <p id="mlLoginError" class="ml-admin-status" role="alert" style="color:#ffb4b4"></p>
+      <div class="flex gap-2 justify-end">
+        <button type="button" id="mlLoginCancel" class="btn2" style="padding:11px 18px">Cancel</button>
+        <button type="submit" class="btn" style="padding:11px 20px">Unlock</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<aside id="mlAdminPanel" hidden aria-label="MecheLab local content editor">
+  <div class="ml-admin-top">
+    <h2>Local content editor</h2>
+    <button type="button" id="mlAdminClose" aria-label="Close admin panel">Close</button>
+  </div>
+  <p>Turn on text editing, then click any outlined heading or paragraph on the page to change it. Click outside the text when finished.</p>
+  <div class="ml-admin-actions">
+    <button type="button" id="mlEditToggle">Turn on text editing</button>
+    <button type="button" id="mlPreviewToggle">Preview mode</button>
+    <button type="button" id="mlAdminLogout">Lock admin</button>
+    <button type="button" id="mlCancelEdits">Clear edit focus</button>
+    <button type="button" id="mlExport" class="ml-export">Export updated index.html</button>
+  </div>
+  <p id="mlAdminStatus" class="ml-admin-status" aria-live="polite">Changes are live in this browser until you export the HTML.</p>
+</aside>
+
+<!-- three.js (the 3D library), pinned to an exact version -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<script>
+/* ================================================================
+   (A) CONTENT: edit the words in this section. Each list becomes a
+   block on the page. Keep the quotes and commas as they are.
+   ================================================================ */
+const CONTACT_EMAIL = "mrvending@live.com.au";   // Enquiry destination; kept out of visible page content
+
+const RIBBON = ["Web design","Business advice","Technical advice","Growth planning","Search and AI","Recommendations","Digital products"];
+
+const CONSULTING = [
+  { t:"Review of your existing state", x:"We start by understanding where your business and systems stand today: your market position, website and online presence, tools and processes, and where time or revenue is being lost.", chips:["Business review","Systems and tools","Online presence"] },
+  { t:"Growth planning and what it means for you", x:"We map where you want to grow and work through what that means for the business and its systems: the people, processes, technology and costs involved, so you can plan with confidence.", chips:["Growth roadmap","Business implications","Systems and technology"] },
+  { t:"Outcomes, reports and recommendations", x:"You receive clear, written findings and practical recommendations that suit your business, size and budget, with priorities, next steps and a plan your team can act on.", chips:["Written report","Recommendations","Action plan"] }
+];
+const WEB = [
+  { t:"Fast, secure and searchable websites", x:"Bespoke websites built for speed, security and search from day one. They load quickly on any device, run on secure hosting with HTTPS, and are structured so Google and AI assistants can find, understand and recommend you.", chips:["Fast loading","Secure by default","Search and AI ready"] },
+  { t:"Improving or building on your existing online presence", x:"We review your current website, domain, social profiles and listings, then keep what works, fix what doesn’t and redirect what moves, so you hold on to the traffic and trust you’ve already earned.", chips:["Site and profile review","Migration and redirects","Consistent branding"] },
+  { t:"Flexible add-ons and support", x:"Add the extras you need, such as interactive design, booking, an online shop or a blog. Then choose how to run it: manage it yourself with training and simple editing tools, or let us look after updates, security and improvements on an ongoing plan.", chips:["Contemporary add-ons","Self-managed","Ongoing support"] }
+];
+const PROCESS = [
+  { t:"Discover", x:"We listen first, then review where your business and systems stand today." },
+  { t:"Define",   x:"A clear growth plan and recommendations, agreed before anything is built." },
+  { t:"Design",   x:"Considered visuals and experiences that make the idea felt." },
+  { t:"Launch",   x:"We go live with confidence, then keep refining." }
+];
+const FAQ = [
+  { t:"What kind of businesses do you work with?", x:"Growing businesses and leadership teams who want clear business and technical advice that leads to clear outcomes. If you are launching, expanding or rethinking your systems, we are likely a good fit." },
+  { t:"How does an engagement begin?", x:"You send an enquiry, we reply promptly and a short call helps us understand your goals. If it feels right, a clear proposal follows." },
+  { t:"How long does a project take?", x:"It depends on the scope and complexity of the work. We agree a clear timeline with you before we start, so you always know what happens next." },
+  { t:"How do you price your work?", x:"Scope and price are agreed upfront, so there are no surprises. Send an enquiry for a tailored quote." },
+  { t:"What do you build websites with?", x:"We choose the platform that best fits your goals and how you plan to update the site, whether that’s a managed website builder or a custom build." },
+  { t:"Do you offer support after launch?", x:"Yes, depending on what we agree together. Some clients prefer to manage their site themselves with training from us, while others like ongoing support, and we’re happy to shape a plan that suits you." }
+];
+const DIGITAL = [
+  { t:"Business review toolkit", x:"Worksheets and checklists to review where your business, website and systems stand today, at your own pace.", chips:["In development","Checklists","Worksheets"] },
+  { t:"Website launch kit", x:"Checklists and templates to plan, build and launch a fast, searchable website with confidence.", chips:["In development","Search and AI ready","Templates"] },
+  { t:"Growth planning templates", x:"Editable templates for turning your goals into a clear plan, a simple report and a list of next steps.", chips:["In development","Growth plan","Action list"] }
+];
+
+/* ================================================================
+   (B) RENDERING: turns the lists above into page blocks
+   ================================================================ */
+const $ = (s) => document.querySelector(s);
+
+// Expanding rows (used for services and FAQ). 'first' opens the first row.
+function rows(el, items, numbered){
+  el.innerHTML = items.map((it,i)=>`<details class="svc"${i===0?" open":""}><summary>${numbered?`<span class="disp g" style="font-size:15px;width:34px">0${i+1}</span>`:""}<span class="t">${it.t}</span><span class="pl" aria-hidden="true">+</span></summary><div class="body"><p class="sub m-0">${it.x}</p>${(it.chips||[]).map(c=>`<span class="chip">${c}</span>`).join("")}</div></details>`).join("");
+}
+// Illustrated portrait placeholder (swap for a real <img> later)
+function portrait(i,w,h){
+  return `<div class="av" style="width:${w}px;height:${h}px"><svg viewBox="0 0 200 240" width="${w}" height="${h}" role="img" aria-label="Illustrated portrait placeholder"><defs><linearGradient id="pb${i}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#19d3da"/><stop offset="1" stop-color="#3a1fb8"/></linearGradient><linearGradient id="pf${i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e6f9fc"/><stop offset="1" stop-color="#7fb7d8"/></linearGradient></defs><rect width="200" height="240" fill="url(#pb${i})"/><polygon points="100,20 170,60 170,140 100,180 30,140 30,60" fill="#fff" opacity=".14"/><circle cx="100" cy="98" r="38" fill="url(#pf${i})"/><path d="M28,240 C28,172 66,150 100,150 C134,150 172,172 172,240Z" fill="url(#pf${i})"/></svg></div>`;
+}
+function steps(el, items){
+  el.innerHTML = items.map((s,i)=>`<div class="flex-1 min-w-[200px]"><p class="disp g text-[15px] m-0">0${i+1}</p><h3 class="disp text-xl my-3">${s.t}</h3><p class="sub m-0">${s.x}</p></div>`).join("");
+}
+// When an exported file is opened, its saved HTML already contains the edited
+// service rows and FAQ. Do not rebuild those blocks from the original sample arrays.
+if(document.body.dataset.cmsExported !== "true"){
+{
+  const r = RIBBON.map(w=>`<span>${w}</span><span style="color:var(--mint)" aria-hidden="true">◆</span>`).join("");
+  $("#ribbon").innerHTML = r + r;                       // doubled for a seamless loop
+  rows($("#consultingRows"), CONSULTING, true);
+  rows($("#webRows"), WEB, true);
+  rows($("#faq"), FAQ, false);
+  steps($("#process"), PROCESS);
+  rows($("#digitalRows"), DIGITAL, true);
+}
+}
+
+/* ================================================================
+   (C) PAGE SWITCHING: shows one view at a time based on the #name
+   ================================================================ */
+const VIEWS = ["home","enquire","legal"];
+const TITLES = { "home":"MecheLab | Web design, consulting and digital products", "enquire":"Enquire | MecheLab", "legal":"Privacy & Terms | MecheLab" };
+let pendingScroll = null, current = "home";
+
+function show(){
+  let v = location.hash.slice(1);
+  if(!VIEWS.includes(v)) v = "home";
+  const changed = v !== current;
+  current = v;
+  document.querySelectorAll(".view").forEach(el => el.hidden = el.dataset.view !== v);
+  document.title = TITLES[v];
+  if(pendingScroll){ const id = pendingScroll; pendingScroll = null; requestAnimationFrame(()=>{ const t = document.getElementById(id); if(t) t.scrollIntoView({behavior:"smooth",block:"start"}); }); }
+  else if(changed) window.scrollTo(0,0);
+  if(window.setScene) window.setScene(v);               // tint the 3D scene per view
+  $("#menu").hidden = true; $("#menuBtn").setAttribute("aria-expanded","false");
+}
+addEventListener("hashchange", show);
+
+// Links with data-scroll jump to a section, switching views first if needed
+document.addEventListener("click", (e)=>{
+  const a = e.target.closest("a[data-scroll]"); if(!a) return;
+  e.preventDefault();
+  const target = a.dataset.scroll, view = a.getAttribute("href").slice(1) || "home";
+  if(current === view){ const t = document.getElementById(target); if(t) t.scrollIntoView({behavior:"smooth",block:"start"}); $("#menu").hidden = true; }
+  else { pendingScroll = target; location.hash = view; }
+});
+// Phone menu
+$("#menuBtn").addEventListener("click", ()=>{ const m = $("#menu"); m.hidden = !m.hidden; $("#menuBtn").setAttribute("aria-expanded", String(!m.hidden)); });
+// Services dropdown: opens on click, closes on outside click, a choice, Escape or page change
+const svcBtn = $("#svcBtn"), svcMenu = $("#svcMenu");
+function svc(open){ svcMenu.hidden = !open; svcBtn.setAttribute("aria-expanded", String(open)); }
+svcBtn.addEventListener("click", (e)=>{ e.stopPropagation(); svc(svcMenu.hidden); });
+document.addEventListener("click", (e)=>{ if((!svcMenu.hidden && !e.target.closest("#svcWrap")) || e.target.closest("#svcMenu a")) svc(false); });
+addEventListener("keydown", (e)=>{ if(e.key === "Escape") svc(false); });
+addEventListener("hashchange", ()=>svc(false));
+show();
+
+/* ================================================================
+   (D) FORMS: no server needed. Submitting opens the visitor's email app
+   with the message ready to send to CONTACT_EMAIL.
+   ================================================================ */
+function mailTo(subject, body, msgEl){
+  location.href = "mailto:" + CONTACT_EMAIL + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
+  msgEl.textContent = "Your email app should open with your message ready to send. If it doesn’t, please try again or use another email app.";
+}
+$("#enqForm").addEventListener("submit", (e)=>{
+  e.preventDefault(); const f = e.target, m = $("#enqMsg");
+  if(!f.reportValidity()){ m.textContent = "Please fill in your name, a valid email and a message."; return; }
+  mailTo("MecheLab enquiry: " + f.interest.value, "Name: " + f.name.value + "\nEmail: " + f.email.value + "\nInterested in: " + f.interest.value + "\n\n" + f.message.value, m);
+});
+
+/* ================================================================
+   (E) THREE.JS 3D SCENE: a honeycomb of hexagon prisms that rise toward
+   your cursor, plus drifting light particles and a floating crystal.
+   If the browser can't run 3D, the page simply shows the gradient.
+   ================================================================ */
+(function(){
+  const canvas = $("#bg");
+  let renderer;
+  try { renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true, powerPreference:"low-power" }); }
+  catch(err){ canvas.style.display = "none"; return; }
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.6));
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+  camera.position.set(0, 8, 13);
+
+  // Lights: two coloured point lights give the teal/violet glow
+  scene.add(new THREE.AmbientLight(0x4a7fa0, 0.7));
+  const l1 = new THREE.PointLight(0x19d3da, 2.4, 45); l1.position.set(-8, 6, 6);
+  const l2 = new THREE.PointLight(0x7b6cff, 2.2, 45); l2.position.set(9, 4, 2);
+  scene.add(l1, l2);
+
+  // Honeycomb: one InstancedMesh draws every hexagon in a single call
+  const COLS = 24, ROWS = 15, COUNT = COLS * ROWS;
+  const mesh = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.55, 0.55, 1, 6), new THREE.MeshStandardMaterial({ color:0xb8d4e0, metalness:0.55, roughness:0.35 }), COUNT);
+  const dummy = new THREE.Object3D(), tint = new THREE.Color(), cA = new THREE.Color(0x19d3da), cB = new THREE.Color(0x7b6cff);
+  const base = [];
+  for(let r=0; r<ROWS; r++) for(let c=0; c<COLS; c++){
+    const i = r*COLS + c;
+    base.push([(c + (r%2)*0.5 - COLS/2) * 1.12, (r - ROWS/2) * 0.97]);
+    tint.copy(cA).lerp(cB, (c/COLS)*0.8 + Math.random()*0.2);
+    mesh.setColorAt(i, tint);
+  }
+  mesh.instanceColor.needsUpdate = true;
+  scene.add(mesh);
+
+  // Light particles
+  const P = 260, pos = new Float32Array(P*3);
+  for(let i=0;i<P;i++){ pos[i*3]=(Math.random()-0.5)*30; pos[i*3+1]=Math.random()*9; pos[i*3+2]=(Math.random()-0.5)*18; }
+  const pg = new THREE.BufferGeometry(); pg.setAttribute("position", new THREE.BufferAttribute(pos,3));
+  const pts = new THREE.Points(pg, new THREE.PointsMaterial({ color:0x6df5c4, size:0.07, transparent:true, opacity:0.8 }));
+  scene.add(pts);
+
+  // Colour moods for each view: [light 1, light 2]
+  const MOODS = { "home":[0x19d3da,0x7b6cff], "digital-products":[0xb58cff,0x6df5c4], "enquire":[0x19d3da,0x2f7bff], "legal":[0x19d3da,0x2f7bff] };
+  let target = MOODS.home.map(h => new THREE.Color(h));
+  window.setScene = (v) => { target = (MOODS[v]||MOODS.home).map(h => new THREE.Color(h)); };
+  window.setScene(current);
+
+  // Pointer position (-1 to 1) drives the rising hexagons and camera parallax
+  let mx = 0, my = 0, px = 0, pz = 0;
+  addEventListener("pointermove", (e)=>{ mx = (e.clientX/innerWidth)*2 - 1; my = (e.clientY/innerHeight)*2 - 1; }, { passive:true });
+
+  function resize(){
+    renderer.setSize(innerWidth, innerHeight, false);
+    camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+    if(reduced) draw(0);
+  }
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function draw(t){
+    // Pointer target on the honeycomb plane (smoothed)
+    px += (mx*COLS*0.5 - px) * 0.06; pz += (my*ROWS*0.45 - pz) * 0.06;
+    for(let i=0;i<COUNT;i++){
+      const x = base[i][0], z = base[i][1];
+      let h = 0.35 + (Math.sin(x*0.5 + t*0.8) + Math.cos(z*0.6 + t*0.6) + 2) * 0.32;
+      h += Math.max(0, 1.8 - Math.hypot(x-px, z-pz) * 0.5);        // hexagons near the cursor rise
+      dummy.position.set(x, h/2 - 1, z); dummy.scale.set(1, h, 1); dummy.updateMatrix();
+      mesh.setMatrixAt(i, dummy.matrix);
+    }
+    mesh.instanceMatrix.needsUpdate = true;
+    mesh.position.z = Math.min(scrollY, 2400) * 0.004;              // slow parallax as you scroll
+    camera.position.x += (mx*1.6 - camera.position.x) * 0.04;
+    camera.lookAt(0, 0, 0);
+    pts.rotation.y = t*0.02;
+    l1.color.lerp(target[0], 0.04); l2.color.lerp(target[1], 0.04); // fade between view moods
+    renderer.render(scene, camera);
+  }
+
+  let last = 0;
+  function loop(ms){ requestAnimationFrame(loop); if(document.hidden) return; draw(ms/1000); }
+  addEventListener("resize", resize);
+  resize();
+  if(!reduced) requestAnimationFrame(loop);
+})();
+
+</script>
+
+<!-- ============================================================
+     LOCAL CMS JAVASCRIPT
+     EASY PASSWORD CHANGE: edit the next line and replace "admin123".
+     IMPORTANT: this is a convenience lock, NOT secure website security.
+     The password is visible in the downloaded HTML/source code. Do not
+     use a password that protects anything else. Anyone can inspect it.
+     ============================================================ -->
+<script>
+(() => {
+  // CHANGE YOUR LOCAL ADMIN PASSWORD HERE:
+  const ML_ADMIN_PASSWORD = "admin123";
+
+  const $ml = (selector) => document.querySelector(selector);
+  const loginModal = $ml("#mlLoginModal");
+  const adminPanel = $ml("#mlAdminPanel");
+  const adminLink = $ml("#mlAdminLink");
+  const passwordInput = $ml("#mlAdminPassword");
+  const status = $ml("#mlAdminStatus");
+  let unlocked = false;
+  let editing = false;
+  let preview = false;
+  let activeEditable = null;
+
+  // These are the main visitor-facing text areas. The editor changes the
+  // words directly on the page; it does not change layout or visual styling.
+  const editableSelector = [
+    "main h1", "main h2", "main h3", "main p", "main li",
+    "main details summary .t", "main .chip", "footer > div > span:first-child"
+  ].join(",");
+
+  function prepareEditableText() {
+    document.querySelectorAll(editableSelector).forEach((el) => {
+      if(!el.closest("#mlAdminPanel,#mlLoginModal")) el.dataset.mlEditable = "true";
+    });
+  }
+
+  function setEditing(on) {
+    editing = on;
+    document.body.classList.toggle("ml-edit-mode", editing);
+    $ml("#mlEditToggle").textContent = editing ? "Turn off text editing" : "Turn on text editing";
+    status.textContent = editing
+      ? "Text editing is on. Click an outlined heading or paragraph to edit it."
+      : "Text editing is off. Your current changes remain on the page.";
+    if(!editing && activeEditable) {
+      activeEditable.contentEditable = "false";
+      activeEditable = null;
+    }
+  }
+
+  function closeAdminPanel() {
+    adminPanel.hidden = true;
+    preview = false;
+    document.body.classList.remove("ml-preview-mode");
+    $ml("#mlPreviewToggle").textContent = "Preview mode";
+  }
+
+  // Footer link: first click asks for the password; later clicks reopen the panel.
+  adminLink.addEventListener("click", (event) => {
+    event.preventDefault();
+    if(unlocked) {
+      adminPanel.hidden = false;
+      document.body.classList.remove("ml-preview-mode");
+      preview = false;
+      $ml("#mlPreviewToggle").textContent = "Preview mode";
+    } else {
+      loginModal.hidden = false;
+      passwordInput.value = "";
+      $ml("#mlLoginError").textContent = "";
+      passwordInput.focus();
+    }
+  });
+
+  $ml("#mlLoginCancel").addEventListener("click", () => { loginModal.hidden = true; });
+  loginModal.addEventListener("click", (event) => {
+    if(event.target === loginModal) loginModal.hidden = true;
+  });
+
+  $ml("#mlLoginForm").addEventListener("submit", (event) => {
+    event.preventDefault();
+    if(passwordInput.value !== ML_ADMIN_PASSWORD) {
+      $ml("#mlLoginError").textContent = "That password did not match. Please try again.";
+      passwordInput.select();
+      return;
+    }
+    unlocked = true;
+    loginModal.hidden = true;
+    adminPanel.hidden = false;
+    prepareEditableText();
+    status.textContent = "Unlocked. Turn on text editing, then click text on the page.";
+  });
+
+  // Click-to-edit: select a whole heading or paragraph, then type normally.
+  document.addEventListener("click", (event) => {
+    if(!editing || !unlocked) return;
+    const target = event.target.closest('[data-ml-editable="true"]');
+    if(!target || target.closest("#mlAdminPanel,#mlLoginModal")) return;
+    if(activeEditable && activeEditable !== target) {
+      activeEditable.contentEditable = "false";
+    }
+    activeEditable = target;
+    target.contentEditable = "true";
+    target.focus();
+    status.textContent = "Editing this text. Click another outlined item when finished.";
+  });
+
+  document.addEventListener("focusout", (event) => {
+    if(event.target === activeEditable) {
+      activeEditable.contentEditable = "false";
+      activeEditable = null;
+    }
+  });
+
+  $ml("#mlEditToggle").addEventListener("click", () => setEditing(!editing));
+
+  // Preview hides the admin panel so you can inspect the real page.
+  // Click Admin in the footer to bring the editor back.
+  $ml("#mlPreviewToggle").addEventListener("click", () => {
+    preview = !preview;
+    document.body.classList.toggle("ml-preview-mode", preview);
+    adminPanel.hidden = preview;
+    $ml("#mlPreviewToggle").textContent = preview ? "Exit preview (use footer Admin)" : "Preview mode";
+    if(preview) setEditing(false);
+  });
+
+  $ml("#mlAdminClose").addEventListener("click", closeAdminPanel);
+  $ml("#mlAdminLogout").addEventListener("click", () => {
+    setEditing(false);
+    unlocked = false;
+    closeAdminPanel();
+    status.textContent = "Admin locked.";
+  });
+  $ml("#mlCancelEdits").addEventListener("click", () => {
+    if(activeEditable) activeEditable.contentEditable = "false";
+    activeEditable = null;
+    status.textContent = "No text field is currently being edited. Page changes have not been undone.";
+  });
+
+  // Export takes a snapshot of the whole page, including hidden views and
+  // generated service/FAQ content. It leaves the admin feature in the file,
+  // but closes the controls and removes temporary editing markers.
+  $ml("#mlExport").addEventListener("click", () => {
+    if(!unlocked) return;
+    if(activeEditable) {
+      activeEditable.contentEditable = "false";
+      activeEditable = null;
+    }
+    setEditing(false);
+    const snapshot = document.documentElement.cloneNode(true);
+    const snapshotBody = snapshot.querySelector("body");
+    snapshotBody.dataset.cmsExported = "true";
+
+    // The exported file opens in normal visitor mode, with admin controls closed.
+    snapshot.querySelector("#mlLoginModal").hidden = true;
+    snapshot.querySelector("#mlAdminPanel").hidden = true;
+    snapshotBody.classList.remove("ml-edit-mode","ml-preview-mode");
+
+    // Remove temporary editor attributes from the exported content.
+    snapshot.querySelectorAll("[contenteditable],[data-ml-editable]").forEach((el) => {
+      el.removeAttribute("contenteditable");
+      el.removeAttribute("data-ml-editable");
+    });
+
+    // Download the entire HTML document as index.html.
+    const output = "<!doctype html>\n" + snapshot.outerHTML;
+    const blob = new Blob([output], { type:"text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const download = document.createElement("a");
+    download.href = url;
+    download.download = "index.html";
+    document.body.appendChild(download);
+    download.click();
+    download.remove();
+    URL.revokeObjectURL(url);
+    status.textContent = "Export started. Upload the downloaded index.html to your GitHub repository to publish.";
+  });
+
+  // Escape closes the password window or closes the floating panel.
+  document.addEventListener("keydown", (event) => {
+    if(event.key === "Escape") {
+      if(!loginModal.hidden) loginModal.hidden = true;
+      else if(unlocked) closeAdminPanel();
+    }
+  });
+})();
+</script>
+</body>
+</html>
